@@ -28,6 +28,9 @@
   initMenu();
   initAnchors();
   initFaq();
+  initCarousel();
+  initTreatmentsCarousel();
+  initReviews();
 
   if (!animate) {
     // Sem animação: mostra tudo no estado final
@@ -60,7 +63,6 @@
   treatments();
   gallery();
   ebook();
-  art();
   counters();
 
   // Recalcula posições quando tudo (imagens e fontes) terminar de carregar
@@ -70,6 +72,130 @@
   });
 
   /* ======================================================================== */
+
+  /* Carrossel de antes e depois (rolagem nativa com snap + setas e pontinhos) */
+  function initCarousel() {
+    $$('[data-carousel]').forEach((carousel) => {
+      const track = $('[data-carousel-track]', carousel);
+      const slides = Array.from(track.children);
+      const prev = $('[data-carousel-prev]', carousel);
+      const next = $('[data-carousel-next]', carousel);
+      const dotsWrap = $('[data-carousel-dots]', carousel);
+      let index = 0;
+
+      const dots = slides.map((_, i) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'case-carousel__dot';
+        dot.setAttribute('aria-label', 'Ver transformação ' + (i + 1));
+        dot.addEventListener('click', () => go(i));
+        dotsWrap.appendChild(dot);
+        return dot;
+      });
+
+      const update = () => {
+        dots.forEach((d, i) => d.setAttribute('aria-current', String(i === index)));
+        prev.disabled = index === 0;
+        next.disabled = index === slides.length - 1;
+      };
+      const go = (i) => {
+        index = Math.max(0, Math.min(slides.length - 1, i));
+        track.scrollTo({ left: slides[index].offsetLeft - track.offsetLeft, behavior: 'smooth' });
+        update();
+      };
+
+      prev.addEventListener('click', () => go(index - 1));
+      next.addEventListener('click', () => go(index + 1));
+      let timer;
+      track.addEventListener('scroll', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          index = Math.round(track.scrollLeft / track.clientWidth);
+          update();
+        }, 80);
+      }, { passive: true });
+
+      if (slides.length < 2) carousel.querySelector('.case-carousel__controls').hidden = true;
+      update();
+    });
+  }
+
+  /* Carrossel que passa sozinho, com pontinhos (tratamentos no celular e avaliações) */
+  function autoCarousel(track, dotsWrap, { media = '(min-width: 0px)', interval = 3500 } = {}) {
+    if (!track || !dotsWrap) return;
+    const cards = Array.from(track.children);
+    const mq = window.matchMedia(media);
+    let stops = [];
+    let dots = [];
+    let timer = null;
+    let resumeTimer = null;
+
+    // posições possíveis (no computador, com 3 visíveis, a última parada mostra os 3 últimos)
+    const build = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      stops = cards.map((c) => c.offsetLeft - cards[0].offsetLeft).filter((x) => x <= max + 2);
+      dotsWrap.innerHTML = '';
+      dots = stops.length > 1 ? stops.map(() => dotsWrap.appendChild(document.createElement('span'))) : [];
+      sync();
+    };
+    const current = () => {
+      let best = 0;
+      stops.forEach((x, k) => { if (Math.abs(x - track.scrollLeft) < Math.abs(stops[best] - track.scrollLeft)) best = k; });
+      return best;
+    };
+    const sync = () => { const i = current(); dots.forEach((d, k) => d.classList.toggle('is-active', k === i)); };
+    const go = (i) => track.scrollTo({ left: stops[i], behavior: 'smooth' });
+    const stop = () => { clearInterval(timer); timer = null; };
+    const start = () => {
+      stop();
+      if (!mq.matches || reduceMotion || stops.length < 2) return;
+      timer = setInterval(() => go((current() + 1) % stops.length), interval);
+    };
+    const pause = () => { stop(); clearTimeout(resumeTimer); resumeTimer = setTimeout(start, 6000); };
+
+    let t;
+    track.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(sync, 80); }, { passive: true });
+    track.addEventListener('touchstart', pause, { passive: true });
+    track.addEventListener('pointerdown', pause);
+    track.addEventListener('mouseenter', stop);
+    track.addEventListener('mouseleave', start);
+    // no celular a barra do navegador dispara "resize" ao rolar: só refaz se a largura mudou
+    let rt;
+    let lastW = window.innerWidth;
+    window.addEventListener('resize', () => {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      clearTimeout(rt);
+      rt = setTimeout(() => { build(); if (timer) start(); }, 200);
+    });
+
+    // só roda quando está na tela
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) stop();
+      else if (!timer) start();
+    }, { threshold: 0.3 });
+    io.observe(track);
+    mq.addEventListener('change', () => { build(); start(); });
+    build();
+  }
+
+  function initTreatmentsCarousel() {
+    autoCarousel($('[data-treat-track]'), $('[data-treat-dots]'), { media: '(max-width: 767px)' });
+  }
+
+  function initReviews() {
+    // "Ler avaliação completa" só aparece quando o texto foi cortado
+    $$('[data-review-text]').forEach((p) => {
+      const btn = p.parentElement.querySelector('[data-review-more]');
+      if (p.scrollHeight > p.clientHeight + 4) btn.hidden = false;
+      btn.addEventListener('click', () => {
+        const open = p.parentElement.classList.toggle('is-open');
+        btn.textContent = open ? 'Mostrar menos' : 'Ler avaliação completa';
+        if (window.ScrollTrigger) ScrollTrigger.refresh();
+      });
+    });
+    autoCarousel($('[data-reviews-track]'), $('[data-reviews-dots]'), { interval: 4500 });
+  }
 
   function initYear() {
     $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); });
@@ -364,32 +490,10 @@
   }
 
   function treatments() {
-    const mm = gsap.matchMedia();
-
-    // Desktop: coluna da esquerda fica fixa enquanto os cards passam
-    mm.add('(min-width: 1200px)', () => {
-      const intro = $('[data-treatments-intro]');
-      const list = $('[data-treatments-list]');
-      const offset = 140;
-      ScrollTrigger.create({
-        trigger: list,
-        start: `top ${offset}px`,
-        end: () => `bottom ${offset + intro.offsetHeight}px`,
-        pin: intro,
-        pinSpacing: false,
-        invalidateOnRefresh: true,
-      });
-    });
-
-    $$('[data-treat-card]').forEach((card) => {
+    $$('[data-treat-card]').forEach((card, i) => {
       gsap.from(card, {
-        y: 80, scale: 0.95, autoAlpha: 0, duration: 1.2, ease: 'power3.out',
+        y: 60, autoAlpha: 0, duration: 1.1, delay: (i % 3) * 0.12, ease: 'power3.out',
         scrollTrigger: { trigger: card, start: 'top 92%', once: true },
-      });
-      gsap.fromTo($('[data-treat-figure]', card), { yPercent: 10 }, {
-        yPercent: 0,
-        ease: 'none',
-        scrollTrigger: { trigger: card, start: 'top bottom', end: 'center center', scrub: true },
       });
     });
   }
@@ -408,22 +512,6 @@
     const st = { trigger: '[data-ebook]', start: 'top bottom', end: 'bottom top', scrub: true };
     gsap.fromTo('[data-ebook-mockup]', { yPercent: 8, rotate: -2 }, { yPercent: -6, rotate: 1, ease: 'none', scrollTrigger: st });
     gsap.fromTo('.ebook__shadow', { scaleX: 1 }, { scaleX: 0.82, autoAlpha: 0.6, ease: 'none', scrollTrigger: { ...st } });
-  }
-
-  function art() {
-    gsap.from('[data-art-title] span', {
-      yPercent: 60, autoAlpha: 0, duration: 1.3, stagger: 0.15, ease: 'expo.out',
-      scrollTrigger: { trigger: '[data-art-title]', start: 'top 85%', once: true },
-    });
-
-    gsap.from('[data-bubble]', {
-      scale: 0, duration: 1.2, stagger: 0.2, ease: 'back.out(1.6)',
-      scrollTrigger: { trigger: '.art__headline', start: 'top 80%', once: true },
-    });
-
-    const st = { trigger: '.art__headline', start: 'top bottom', end: 'bottom top', scrub: true };
-    gsap.fromTo('[data-bubble="1"]', { y: 50, rotate: -8 }, { y: -50, rotate: 6, ease: 'none', scrollTrigger: st });
-    gsap.fromTo('[data-bubble="2"]', { y: -30, rotate: 8 }, { y: 60, rotate: -6, ease: 'none', scrollTrigger: { ...st } });
   }
 
   function counters() {
