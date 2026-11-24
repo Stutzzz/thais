@@ -828,6 +828,25 @@ button { font: inherit; color: inherit; }
 
 .carousel-dots.treatments__dots { display: none; }
 
+/* Hierarquia dos cabeçalhos de seção (só tamanhos; cores originais).
+   Vale para todas as seções, menos o topo, que tem escala própria. */
+.section .eyebrow:not(.eyebrow--light) {
+  gap: 8px;
+  font-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1.0625rem);
+}
+.section .eyebrow:not(.eyebrow--light) img { width: clamp(20px, 1.4vw, 26px); }
+.section .title {
+  font-size: clamp(2.125rem, 1.45rem + 2.3vw, 3.5rem);
+  line-height: 1.08;
+}
+.section .eyebrow + .title { margin-top: 10px; }
+.section .section-head .lead,
+.section .ebook__text > .lead {
+  max-width: 52ch;
+  font-size: clamp(0.875rem, 0.85rem + 0.12vw, 1rem);
+  line-height: 1.6;
+}
+
 .treatments__cta { display: flex; width: fit-content; margin: clamp(32px, 3vw, 48px) auto 0; }
 
 
@@ -1065,7 +1084,7 @@ button { font: inherit; color: inherit; }
   grid-auto-columns: calc((100% - var(--gap) * (var(--per-view) - 1)) / var(--per-view));
   gap: var(--gap);
   margin: 0;
-  padding: 4px 0 20px;
+  padding: 6px 0 22px !important; /* ul[role="list"] zera o padding; aqui ele precisa existir para a sombra aparecer */
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
@@ -1081,7 +1100,8 @@ button { font: inherit; color: inherit; }
   padding: clamp(10px, 0.85vw, 14px);
   border-radius: var(--r-lg);
   background: var(--c-surface-1);
-  box-shadow: 0 8px 22px rgba(22, 19, 20, 0.07);
+  border: 1px solid rgba(22, 19, 20, 0.06);
+  box-shadow: 0 2px 4px rgba(22, 19, 20, 0.04), 0 6px 14px rgba(22, 19, 20, 0.05);
   scroll-snap-align: start;
 }
 .case-slide__photo {
@@ -1691,7 +1711,12 @@ button { font: inherit; color: inherit; }
   .treat-card { flex: 0 0 86%; scroll-snap-align: start; }
   .treat-card:hover { transform: none; }
   .carousel-dots.treatments__dots { display: flex; }
-  .case-carousel__track { grid-auto-columns: 88%; }
+  .case-carousel__track {
+    grid-auto-columns: 86%;
+    margin-inline: calc(var(--gutter) * -1);
+    padding: 6px var(--gutter) 22px !important;
+    scroll-padding-inline: var(--gutter);
+  }
   .case-slide { grid-template-columns: minmax(0, 1fr); align-items: start; align-content: start; }
   .case-slide { gap: 14px; }
   .case-slide__text { padding: 0 8px 10px; }
