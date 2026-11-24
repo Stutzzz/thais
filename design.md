@@ -105,7 +105,7 @@ Logam usa versaletes nas minúsculas — por isso os títulos parecem "caixa alt
 | 6 | Galeria | — | Faixa de 6 fotos P&B, largura total |
 | 7 | E-book | `vira-tempo` | Texto + card "Bônus exclusivo" + CTA; mockup do livro e celular |
 | 8 | A arte de renovar | `arte` | Título gigante com 2 fotos circulares; bento com 4 cards |
-| 9 | Case | `case` | História da Paloma Barros, 2 fotos antes/depois, resultado e citação |
+| 2 | Transformações reais | `case` | Carrossel com 5 antes e depois em fotos originais, perfil de pele e texto, sem nome da cliente |
 | 10 | FAQ | `duvidas` | Retrato + 3 perguntas (acordeão) |
 | 11 | Depoimentos | `depoimentos` | Título, stats (+100 / 98%), 3 cards Google |
 | 12 | Rodapé | `contato` | Foto com recorte, links, redes, CTA, telefone, e-mail, copyright |

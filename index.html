@@ -24,7 +24,7 @@
 
   <link rel="preload" as="image" href="assets/img/hero-woman.webp" fetchpriority="high">
   <!-- ?v= força o navegador a baixar a versão nova; aumente o número quando mudar CSS/JS -->
-  <link rel="stylesheet" href="assets/css/style.css?v=7">
+  <link rel="stylesheet" href="assets/css/style.css?v=15">
 
   <!-- Marca o documento como "com JS" antes do primeiro paint (evita flash nas animações) -->
   <script>document.documentElement.classList.add('js')</script>
@@ -34,7 +34,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollSmoother.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
-  <script defer src="assets/js/main.js?v=5"></script>
+  <script defer src="assets/js/main.js?v=8"></script>
 
   <script type="application/ld+json">
   {
@@ -141,9 +141,9 @@
               <h1 class="hero__title" id="hero-title">Envelhecer é inevitável, mas parecer velha é uma opção.</h1>
               <p class="hero__lead">Diminua rugas e linhas de expressão com um método personalizado desenvolvido exclusivamente para mulheres em Alphaville e região.</p>
               <div class="hero__actions">
-                <a class="btn btn--outline-light btn--shine" href="https://wa.me/5511912161997?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener">
+                <a class="btn btn--hero-cta" href="https://wa.me/5511912161997?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener" data-ripple>
                   Agendar uma avaliação
-                  <svg class="icon-arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
+                  <span class="btn__icon" aria-hidden="true"><svg class="icon-arrow"><use href="#i-arrow"/></svg></span>
                 </a>
               </div>
             </div>
@@ -168,39 +168,74 @@
                 </p>
                 <h2 class="title" id="case-title" data-split>Veja a diferença que o cuidado certo faz</h2>
               </div>
-              <p class="lead" data-reveal>Cada pele tem uma história. Antes de qualquer procedimento, realizamos um Diagnóstico de Pele aprofundado e montamos um tratamento pensado só para ela. Estes são alguns dos resultados.</p>
             </div>
 
             <!--
-              Para adicionar uma nova cliente: copie um <li class="case-slide">,
-              troque a foto (antes e depois lado a lado), o nome e a frase do case.
+              Para adicionar uma nova transformação: copie um <li class="case-slide">,
+              troque a foto original (sem editar), o perfil de pele e o texto. Não usar o nome da cliente.
               Os pontinhos de navegação são criados automaticamente.
             -->
             <div class="case-carousel" data-carousel data-reveal>
               <ul class="case-carousel__track" role="list" data-carousel-track>
-                <li class="case-slide" aria-roledescription="slide" aria-label="1 de 2">
+                <li class="case-slide" aria-roledescription="slide" aria-label="1 de 5">
                   <figure class="case-slide__photo">
-                    <img src="assets/img/case-front.webp" alt="Antes e depois da Paloma, vista frontal: pele com acne à esquerda e pele uniforme à direita" width="1700" height="1082" loading="lazy">
+                    <img src="assets/img/transformacoes/pele-oleosa.jpg" alt="Antes e depois real de uma cliente: pele oleosa" width="1600" height="1600" loading="lazy">
                     <span class="case-slide__tag case-slide__tag--before">Antes</span>
                     <span class="case-slide__tag case-slide__tag--after">Depois</span>
                   </figure>
                   <div class="case-slide__text">
-                    <p class="case-slide__name">Paloma Barros</p>
-                    <p class="case-slide__summary">Desde os 16 anos lutando contra a acne e escondendo a pele com maquiagem. Com um tratamento personalizado, a Paloma voltou a se sentir bem ao se olhar no espelho.</p>
-                    <blockquote class="case-slide__quote">
-                      <p>“Melhor escolha que fiz foi fechar meu tratamento com ela! Encontrei a melhor profissional do mundo ❤️”</p>
-                    </blockquote>
+                    <h3 class="case-slide__name">Pele Oleosa</h3>
+                    <p class="case-slide__summary">Se incomodava com o excesso de oleosidade, cravos e algumas manchas pós inflamatórias, de acnes.</p>
+                    <p class="case-slide__summary">Conseguimos uniformizar demais o tom, a textura e diminuir os cravos da pele.</p>
                   </div>
                 </li>
-                <li class="case-slide" aria-roledescription="slide" aria-label="2 de 2">
+                <li class="case-slide" aria-roledescription="slide" aria-label="2 de 5">
                   <figure class="case-slide__photo">
-                    <img src="assets/img/case-profile.webp" alt="Antes e depois da Paloma, vista de perfil" width="1700" height="1038" loading="lazy">
+                    <img src="assets/img/transformacoes/pele-com-manchas.jpg" alt="Antes e depois real de uma cliente: pele com manchas" width="1600" height="1600" loading="lazy">
                     <span class="case-slide__tag case-slide__tag--before">Antes</span>
                     <span class="case-slide__tag case-slide__tag--after">Depois</span>
                   </figure>
                   <div class="case-slide__text">
-                    <p class="case-slide__name">Paloma Barros · perfil</p>
-                    <p class="case-slide__summary">Inflamações controladas, textura uniforme e a barreira de proteção da pele recuperada: saúde e viço no lugar do excesso de maquiagem.</p>
+                    <h3 class="case-slide__name">Pele com manchas</h3>
+                    <p class="case-slide__summary">Queria prevenir a pele do envelhecimento e clarear algumas manchas.</p>
+                    <p class="case-slide__summary">Ao final do tratamento tivemos uma pele muito mais uniforme, com menos manchas e com estoque de colágeno renovado.</p>
+                  </div>
+                </li>
+                <li class="case-slide" aria-roledescription="slide" aria-label="3 de 5">
+                  <figure class="case-slide__photo">
+                    <img src="assets/img/transformacoes/pele-opaca-olheiras.jpg" alt="Antes e depois real de uma cliente: pele opaca e com olheiras" width="1600" height="1600" loading="lazy">
+                    <span class="case-slide__tag case-slide__tag--before">Antes</span>
+                    <span class="case-slide__tag case-slide__tag--after">Depois</span>
+                  </figure>
+                  <div class="case-slide__text">
+                    <h3 class="case-slide__name">Pele opaca e com olheiras</h3>
+                    <p class="case-slide__summary">Chegou com a pele mais opaca, se queixando das manchas, espinhas e olheiras.</p>
+                    <p class="case-slide__summary">Ao final do tratamento, conseguimos uma pele com tom uniforme, menos manchas, espinhas controladas. Uma pele que passa o ar de descanso.</p>
+                  </div>
+                </li>
+                <li class="case-slide" aria-roledescription="slide" aria-label="4 de 5">
+                  <figure class="case-slide__photo">
+                    <img src="assets/img/transformacoes/cicatriz-de-acne.jpg" alt="Antes e depois real de uma cliente: cicatriz de acne" width="1600" height="1600" loading="lazy">
+                    <span class="case-slide__tag case-slide__tag--before">Antes</span>
+                    <span class="case-slide__tag case-slide__tag--after">Depois</span>
+                  </figure>
+                  <div class="case-slide__text">
+                    <h3 class="case-slide__name">Cicatriz de Acne</h3>
+                    <p class="case-slide__summary">Se queixava do aspecto geral da pele, algumas manchas de acne, poros dilatados e cicatrizes de acne.</p>
+                    <p class="case-slide__summary">E o resultado? Pele com a textura uniforme, poros mais disfarçados e cicatrizes menores.</p>
+                  </div>
+                </li>
+                <li class="case-slide" aria-roledescription="slide" aria-label="5 de 5">
+                  <figure class="case-slide__photo">
+                    <img src="assets/img/transformacoes/acne-hormonal.jpg" alt="Antes e depois real de uma cliente: acne hormonal" width="1600" height="1600" loading="lazy">
+                    <span class="case-slide__tag case-slide__tag--before">Antes</span>
+                    <span class="case-slide__tag case-slide__tag--after">Depois</span>
+                  </figure>
+                  <div class="case-slide__text">
+                    <h3 class="case-slide__name">Acne Hormonal</h3>
+                    <p class="case-slide__summary">Ela sofre com acne hormonal, se sentia muito refém da maquiagem para sair de casa.</p>
+                    <p class="case-slide__summary">Ao longo do acompanhamento, conseguiu diminuir a quantidade de maquiagem no dia a dia, controlamos a acne e a inflamação da pele.</p>
+                    <p class="case-slide__note">*Ainda em acompanhamento</p>
                   </div>
                 </li>
               </ul>
@@ -228,7 +263,6 @@
           <div class="container">
             <div class="section-head section-head--split">
               <h2 class="title title--lg" id="momentos-title" data-split>Talvez esteja vivendo um destes momentos</h2>
-              <p class="lead" data-reveal>O espelho muitas vezes reflete o estresse do dia a dia e a ação do tempo, trazendo sinais que não condizem com como nos sentimos por dentro. O cuidado certo é o espaço para resgatar a sua melhor versão.</p>
             </div>
 
             <ul class="moments__grid" role="list">
@@ -318,9 +352,9 @@
                   <img src="assets/img/treat-lifting.webp" alt="Rosto feminino com marcações de lifting" width="520" height="780" loading="lazy">
                 </div>
                 <div class="treat-card__body">
-                  <h3 class="treat-card__title">Lifting Facial</h3>
+                  <h3 class="treat-card__title">Lifting Facial Sem Cortes</h3>
                   <p>Promove um lifting instantâneo com efeito cumulativo. Diminui linhas finas, entrega uma aparência de pele descansada e gera um estímulo leve de colágeno para maior firmeza.</p>
-                  <a class="treat-card__more" href="https://wa.me/5511912161997?text=Ol%C3%A1%21%20Quero%20saber%20mais%20sobre%20Lifting%20Facial." target="_blank" rel="noopener">Saiba mais <span aria-hidden="true">→</span><span class="sr-only"> sobre Lifting Facial</span></a>
+                  <a class="treat-card__more" href="https://wa.me/5511912161997?text=Ol%C3%A1%21%20Quero%20saber%20mais%20sobre%20Lifting%20Facial%20Sem%20Cortes." target="_blank" rel="noopener">Saiba mais <span aria-hidden="true">→</span><span class="sr-only"> sobre Lifting Facial Sem Cortes</span></a>
                 </div>
               </li>
               <li class="treat-card" data-treat-card>

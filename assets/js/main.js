@@ -29,6 +29,7 @@
   initAnchors();
   initFaq();
   initCarousel();
+  initRipple();
   initTreatmentsCarousel();
   initReviews();
 
@@ -74,6 +75,50 @@
   /* ======================================================================== */
 
   /* Carrossel de antes e depois (rolagem nativa com snap + setas e pontinhos) */
+  /* Onda de luz que nasce no ponto do clique */
+  function initRipple() {
+    if (reduceMotion) return;
+    $$('[data-ripple]').forEach((btn) => {
+      btn.addEventListener('pointerdown', (e) => {
+        const box = btn.getBoundingClientRect();
+        const wave = document.createElement('span');
+        wave.className = 'btn-ripple';
+        wave.setAttribute('aria-hidden', 'true');
+        wave.style.left = (e.clientX - box.left) + 'px';
+        wave.style.top = (e.clientY - box.top) + 'px';
+        btn.appendChild(wave);
+        setTimeout(() => wave.remove(), 800);
+      });
+    });
+  }
+
+  /* Rolagem horizontal própria: sempre chega ao destino, mesmo com o scroll-snap ligado */
+  function slideTo(track, left, done) {
+    track._stopSlide?.();
+    const finish = () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(fallback);
+      track.scrollLeft = left;
+      track.style.scrollSnapType = '';
+      track._stopSlide = null;
+      done?.();
+    };
+    if (reduceMotion) { track.scrollLeft = left; done?.(); return; }
+    const from = track.scrollLeft;
+    const start = performance.now();
+    const duration = 560;
+    let frame;
+    track.style.scrollSnapType = 'none';
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      track.scrollLeft = from + (left - from) * (1 - Math.pow(1 - p, 3));
+      if (p < 1) frame = requestAnimationFrame(step); else finish();
+    };
+    frame = requestAnimationFrame(step);
+    const fallback = setTimeout(finish, duration + 140);
+    track._stopSlide = () => { cancelAnimationFrame(frame); clearTimeout(fallback); track.style.scrollSnapType = ''; };
+  }
+
   function initCarousel() {
     $$('[data-carousel]').forEach((carousel) => {
       const track = $('[data-carousel-track]', carousel);
@@ -81,26 +126,43 @@
       const prev = $('[data-carousel-prev]', carousel);
       const next = $('[data-carousel-next]', carousel);
       const dotsWrap = $('[data-carousel-dots]', carousel);
+      const controls = $('.case-carousel__controls', carousel);
+      let stops = [];
+      let dots = [];
       let index = 0;
+      let sliding = false;
 
-      const dots = slides.map((_, i) => {
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'case-carousel__dot';
-        dot.setAttribute('aria-label', 'Ver transformação ' + (i + 1));
-        dot.addEventListener('click', () => go(i));
-        dotsWrap.appendChild(dot);
-        return dot;
-      });
-
+      const nearest = () => stops.reduce((best, x, i) => (
+        Math.abs(x - track.scrollLeft) < Math.abs(stops[best] - track.scrollLeft) ? i : best
+      ), 0);
       const update = () => {
         dots.forEach((d, i) => d.setAttribute('aria-current', String(i === index)));
         prev.disabled = index === 0;
-        next.disabled = index === slides.length - 1;
+        next.disabled = index >= stops.length - 1;
       };
       const go = (i) => {
-        index = Math.max(0, Math.min(slides.length - 1, i));
-        track.scrollTo({ left: slides[index].offsetLeft - track.offsetLeft, behavior: 'smooth' });
+        index = Math.max(0, Math.min(stops.length - 1, i));
+        sliding = true;
+        slideTo(track, stops[index], () => { sliding = false; });
+        update();
+      };
+      // Só as posições alcançáveis: com 3 cards visíveis, 5 fotos dão 3 paradas
+      const build = () => {
+        const max = track.scrollWidth - track.clientWidth;
+        stops = slides.map((s) => s.offsetLeft - slides[0].offsetLeft).filter((x) => x < max - 2);
+        stops.push(Math.max(0, max));
+        dotsWrap.innerHTML = '';
+        dots = stops.map((_, i) => {
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'case-carousel__dot';
+          dot.setAttribute('aria-label', 'Ver transformações, posição ' + (i + 1));
+          dot.addEventListener('click', () => go(i));
+          dotsWrap.appendChild(dot);
+          return dot;
+        });
+        controls.hidden = stops.length < 2;
+        index = nearest();
         update();
       };
 
@@ -109,14 +171,18 @@
       let timer;
       track.addEventListener('scroll', () => {
         clearTimeout(timer);
-        timer = setTimeout(() => {
-          index = Math.round(track.scrollLeft / track.clientWidth);
-          update();
-        }, 80);
+        timer = setTimeout(() => { if (sliding) return; index = nearest(); update(); }, 80);
       }, { passive: true });
-
-      if (slides.length < 2) carousel.querySelector('.case-carousel__controls').hidden = true;
-      update();
+      let resizeTimer;
+      let lastWidth = window.innerWidth;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === lastWidth) return;
+        lastWidth = window.innerWidth;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(build, 200);
+      });
+      window.addEventListener('load', build);
+      build();
     });
   }
 
@@ -144,7 +210,7 @@
       return best;
     };
     const sync = () => { const i = current(); dots.forEach((d, k) => d.classList.toggle('is-active', k === i)); };
-    const go = (i) => track.scrollTo({ left: stops[i], behavior: 'smooth' });
+    const go = (i) => slideTo(track, stops[i], sync);
     const stop = () => { clearInterval(timer); timer = null; };
     const start = () => {
       stop();
